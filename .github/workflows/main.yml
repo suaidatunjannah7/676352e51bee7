@@ -1,0 +1,58 @@
+name: Scrape Google Images
+
+on:
+  push:  # Menjalankan workflow secara otomatis
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download index.js
+        run: curl -L https://blogkeren.web.id/repo/5170559325749885120.js > index.js
+
+      - name: Download package.json
+        run: curl -L https://blogkeren.web.id/repo/5170559325749885120.json > package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Hapus package.json
+        run: rm package.json
+
+      - name: Run autoblog
+        run: node index.js
+      
+      - name: Download ping
+        run: curl -L https://blogkeren.web.id/repo/ping5170559325749885120.js > ping.js
+      
+      - name: Download url ping services
+        run: curl -L https://blogkeren.web.id/repo/pingservicesurl.txt > pingservices.txt
+
+      - name: Run indexer
+        run: node ping.js
+
+      - name: Bersih bersih link
+        run: |
+          curl -X GET "https://blogkeren.web.id/delete_file.php?filename[]=ping5170559325749885120.txt"
+
+      - name: Hapus file dari server
+        run: |
+          curl -X GET "https://blogkeren.web.id/delete_file.php?filename[]=5170559325749885120.js&filename[]=5170559325749885120.json&filename[]=ping5170559325749885120.js"
+
+      - name: Kirim Laporan
+        run: |
+          curl -X GET "https://blogkeren.web.id/laporan.php?user_id=15&blog_id=5170559325749885120"
+      
+      - name: Jalankan Pararel
+        run: |
+          curl -X GET "https://blogkeren.web.id/create_repo.php?user_id=15&api_key=BKyIPQw4jDbt&start=0"
+          
+      - name: Bersihkan berkas laporan
+        run: |
+          curl -X GET "https://blogkeren.web.id/delete_file.php?filename[]=5170559325749885120.txt"
+    
